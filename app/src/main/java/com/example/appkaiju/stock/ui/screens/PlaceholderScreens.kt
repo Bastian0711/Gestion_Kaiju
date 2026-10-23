@@ -24,7 +24,4 @@ private fun PlaceholderScreen(title: String, onBack: () -> Unit) {
 }
 
 @Composable
-fun ProductListScreen(onBack: () -> Unit) = PlaceholderScreen("Productos", onBack)
-
-@Composable
 fun CatalogScreen(onBack: () -> Unit) = PlaceholderScreen("Catálogo", onBack)
