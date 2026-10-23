@@ -30,9 +30,10 @@ import com.example.appkaiju.stock.model.EstadoStock
 import com.example.appkaiju.stock.model.Producto
 import com.example.appkaiju.stock.ui.components.comoClp
 import com.example.appkaiju.stock.viewmodel.ProductListViewModel
+import androidx.compose.material3.Button
 
 @Composable
-fun ProductListScreen(viewModel: ProductListViewModel, onBack: () -> Unit) {
+fun ProductListScreen(viewModel: ProductListViewModel, onBack: () -> Unit, onNuevoProducto: () -> Unit)  {
     val productos by viewModel.productos.collectAsState()
     val texto by viewModel.texto.collectAsState()
 
@@ -41,7 +42,12 @@ fun ProductListScreen(viewModel: ProductListViewModel, onBack: () -> Unit) {
             IconButton(onClick = onBack) {
                 Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Volver")
             }
-            Text("Productos", style = MaterialTheme.typography.headlineMedium)
+            Text(
+                "Productos",
+                style = MaterialTheme.typography.headlineMedium,
+                modifier = Modifier.weight(1f)
+            )
+            Button(onClick = onNuevoProducto) { Text("Nuevo") }
         }
 
         OutlinedTextField(

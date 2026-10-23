@@ -6,4 +6,6 @@ object Routes {
     const val HOME = "home"
     const val PRODUCTS = "products"
     const val CATALOG = "catalog"
+
+    const val PRODUCT_FORM = "product_form"
 }

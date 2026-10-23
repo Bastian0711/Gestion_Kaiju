@@ -1,6 +1,7 @@
 package com.example.appkaiju.stock.data
 
 import android.content.Context
+import com.example.appkaiju.stock.repository.InventarioRepository
 import com.example.appkaiju.stock.repository.ProductoRepository
 import com.example.appkaiju.stock.repository.UsuarioRepository
 
@@ -9,4 +10,5 @@ class AppContainer(context: Context) {
 
     val usuarioRepository = UsuarioRepository(db.usuarioDao())
     val productoRepository = ProductoRepository(db.productoDao(), db.categoriaDao())
+    val inventarioRepository = InventarioRepository(db)
 }
