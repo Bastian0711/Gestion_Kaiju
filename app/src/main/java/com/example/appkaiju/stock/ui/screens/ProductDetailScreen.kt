@@ -32,6 +32,7 @@ import com.example.appkaiju.stock.ui.components.MovimientoItem
 import com.example.appkaiju.stock.ui.components.comoClp
 import com.example.appkaiju.stock.ui.components.etiqueta
 import com.example.appkaiju.stock.viewmodel.ProductDetailViewModel
+import com.example.appkaiju.stock.ui.components.ImagenProducto
 
 @Composable
 fun ProductDetailScreen(
@@ -64,6 +65,10 @@ fun ProductDetailScreen(
                 modifier = Modifier.padding(16.dp)
             )
         } else {
+            ImagenProducto(
+                ruta = producto.imagenUri,
+                modifier = Modifier.fillMaxWidth().height(180.dp)
+            )
             Card(modifier = Modifier.fillMaxWidth()) {
                 Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
                     Row(verticalAlignment = Alignment.CenterVertically) {

@@ -48,7 +48,8 @@ data class ProductFormState(
     val categorias: List<Categoria> = emptyList(),
     val errores: Map<String, String> = emptyMap(),
     val guardando: Boolean = false,
-    val guardadoOk: Boolean = false
+    val guardadoOk: Boolean = false,
+    val imagenPath: String? = null
 )
 
 class ProductFormViewModel(private val repositorio: InventarioRepository) : ViewModel() {
@@ -96,6 +97,10 @@ class ProductFormViewModel(private val repositorio: InventarioRepository) : View
 
     fun onTipoChange(tipo: TipoProducto) {
         _estado.update { it.copy(tipo = tipo) }
+    }
+
+    fun onFotoChange(ruta: String?) {
+        _estado.update { it.copy(imagenPath = ruta) }
     }
 
     private fun validar(): Boolean {
@@ -172,7 +177,8 @@ class ProductFormViewModel(private val repositorio: InventarioRepository) : View
                 color = if (s.tipo == TipoProducto.VESTUARIO) s.color.trim().ifBlank { null } else null,
                 modelo = if (s.tipo == TipoProducto.TECNOLOGIA) s.modelo.trim().ifBlank { null } else null,
                 lote = if (s.tipo == TipoProducto.INSUMO_PERECIBLE) s.lote.trim() else null,
-                fechaVencimiento = if (s.tipo == TipoProducto.INSUMO_PERECIBLE) s.fechaVencimiento.trim() else null
+                fechaVencimiento = if (s.tipo == TipoProducto.INSUMO_PERECIBLE) s.fechaVencimiento.trim() else null,
+                imagenUri = s.imagenPath
             )
             repositorio.crearProducto(producto, usuarioId)
             _estado.update { it.copy(guardando = false, guardadoOk = true) }

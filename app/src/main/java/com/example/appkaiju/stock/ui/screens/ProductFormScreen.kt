@@ -44,6 +44,7 @@ import androidx.compose.ui.unit.dp
 import com.example.appkaiju.stock.model.TipoProducto
 import com.example.appkaiju.stock.viewmodel.CampoProducto
 import com.example.appkaiju.stock.viewmodel.ProductFormViewModel
+import com.example.appkaiju.stock.ui.components.SeccionFoto
 
 @Composable
 fun ProductFormScreen(viewModel: ProductFormViewModel, usuarioId: Long, onBack: () -> Unit) {
@@ -140,6 +141,7 @@ fun ProductFormScreen(viewModel: ProductFormViewModel, usuarioId: Long, onBack: 
             viewModel.onCampoChange(CampoProducto.STOCK_MINIMO, it)
         }
 
+        SeccionFoto(ruta = s.imagenPath, onFotoChange = viewModel::onFotoChange)
         Spacer(Modifier.height(16.dp))
         Button(
             onClick = { viewModel.guardar(usuarioId) },
