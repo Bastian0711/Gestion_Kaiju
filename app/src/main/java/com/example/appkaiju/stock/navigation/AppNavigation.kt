@@ -24,6 +24,9 @@ import com.example.appkaiju.stock.ui.screens.ProductDetailScreen
 import com.example.appkaiju.stock.ui.screens.ProductFormScreen
 import com.example.appkaiju.stock.ui.screens.ProductListScreen
 import com.example.appkaiju.stock.ui.screens.RegisterScreen
+import com.example.appkaiju.stock.ui.screens.SaleDetailScreen
+import com.example.appkaiju.stock.ui.screens.SaleHistoryScreen
+import com.example.appkaiju.stock.ui.screens.SaleScreen
 import com.example.appkaiju.stock.viewmodel.AuthViewModel
 import com.example.appkaiju.stock.viewmodel.CartViewModel
 import com.example.appkaiju.stock.viewmodel.CatalogViewModel
@@ -33,6 +36,9 @@ import com.example.appkaiju.stock.viewmodel.ProductDetailViewModel
 import com.example.appkaiju.stock.viewmodel.ProductFormViewModel
 import com.example.appkaiju.stock.viewmodel.ProductListViewModel
 import com.example.appkaiju.stock.viewmodel.RegisterViewModel
+import com.example.appkaiju.stock.viewmodel.SaleDetailViewModel
+import com.example.appkaiju.stock.viewmodel.SaleHistoryViewModel
+import com.example.appkaiju.stock.viewmodel.SaleViewModel
 
 @Composable
 fun AppNavigation(authViewModel: AuthViewModel, container: AppContainer) {
@@ -43,6 +49,7 @@ fun AppNavigation(authViewModel: AuthViewModel, container: AppContainer) {
     val carrito by cartViewModel.estado.collectAsState()
 
     val argProducto = listOf(navArgument(Routes.ARG_PRODUCTO_ID) { type = NavType.LongType })
+    val argVenta = listOf(navArgument(Routes.ARG_VENTA_ID) { type = NavType.LongType })
 
     NavHost(navController = navController, startDestination = Routes.LOGIN) {
         composable(Routes.LOGIN) {
@@ -78,6 +85,7 @@ fun AppNavigation(authViewModel: AuthViewModel, container: AppContainer) {
             HomeScreen(
                 usuario = sesion.usuario,
                 onProductsClick = { navController.navigate(Routes.PRODUCTS) },
+                onVentasClick = { navController.navigate(Routes.SALES) },
                 onCatalogClick = { navController.navigate(Routes.CATALOG) },
                 onCartClick = { navController.navigate(Routes.CART) },
                 onCerrarSesion = {
@@ -157,6 +165,46 @@ fun AppNavigation(authViewModel: AuthViewModel, container: AppContainer) {
                 }
             )
             KardexScreen(viewModel = viewModel, onBack = { navController.popBackStack() })
+        }
+        composable(Routes.SALES) {
+            val viewModel: SaleHistoryViewModel = viewModel(
+                factory = viewModelFactory {
+                    initializer { SaleHistoryViewModel(container.ventaRepository) }
+                }
+            )
+            SaleHistoryScreen(
+                viewModel = viewModel,
+                onBack = { navController.popBackStack() },
+                onNuevaVenta = { navController.navigate(Routes.SALE_NEW) },
+                onVentaClick = { id -> navController.navigate(Routes.saleDetail(id)) }
+            )
+        }
+        composable(Routes.SALE_NEW) {
+            val usuario = sesion.usuario ?: return@composable
+            val viewModel: SaleViewModel = viewModel(
+                factory = viewModelFactory {
+                    initializer { SaleViewModel(container.productoRepository, container.ventaRepository) }
+                }
+            )
+            SaleScreen(
+                viewModel = viewModel,
+                usuario = usuario,
+                onBack = { navController.popBackStack() },
+                onVentaRegistrada = { id ->
+                    navController.navigate(Routes.saleDetail(id)) {
+                        popUpTo(Routes.SALE_NEW) { inclusive = true }
+                    }
+                }
+            )
+        }
+        composable(Routes.SALE_DETAIL, arguments = argVenta) { entrada ->
+            val ventaId = entrada.arguments?.getLong(Routes.ARG_VENTA_ID) ?: 0L
+            val viewModel: SaleDetailViewModel = viewModel(
+                factory = viewModelFactory {
+                    initializer { SaleDetailViewModel(container.ventaRepository, ventaId) }
+                }
+            )
+            SaleDetailScreen(viewModel = viewModel, onBack = { navController.popBackStack() })
         }
         composable(Routes.CATALOG) {
             val viewModel: CatalogViewModel = viewModel(

@@ -123,7 +123,7 @@ fun CartScreen(
 }
 
 @Composable
-private fun FilaCarrito(
+fun FilaCarrito(
     item: ItemCarrito,
     onMas: () -> Unit,
     onMenos: () -> Unit,

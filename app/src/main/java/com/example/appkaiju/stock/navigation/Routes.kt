@@ -22,6 +22,14 @@ object Routes {
 
     const val CART = "cart"
 
+    const val SALES = "sales"
+
+    const val SALE_NEW = "sale_new"
+    const val ARG_VENTA_ID = "ventaId"
+
+    const val SALE_DETAIL = "sale_detail/{$ARG_VENTA_ID}"
+
+    fun saleDetail(ventaId: Long) = "sale_detail/$ventaId"
     fun productDetail(productoId: Long) = "product_detail/$productoId"
     fun movement(productoId: Long, tipo: TipoMovimiento) = "movement/$productoId/${tipo.name}"
     fun kardex(productoId: Long) = "kardex/$productoId"

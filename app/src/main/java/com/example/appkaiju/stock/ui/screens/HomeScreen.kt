@@ -20,6 +20,7 @@ import com.example.appkaiju.stock.model.Usuario
 fun HomeScreen(
     usuario: Usuario?,
     onProductsClick: () -> Unit,
+    onVentasClick: () -> Unit,
     onCatalogClick: () -> Unit,
     onCartClick: () -> Unit,
     onCerrarSesion: () -> Unit
@@ -39,6 +40,7 @@ fun HomeScreen(
 
         if (usuario?.rol == Rol.ADMIN) {
             Button(onClick = onProductsClick, modifier = Modifier.fillMaxWidth()) { Text("Productos") }
+            Button(onClick = onVentasClick, modifier = Modifier.fillMaxWidth()) { Text("Ventas") }
         }
         Button(onClick = onCatalogClick, modifier = Modifier.fillMaxWidth()) { Text("Catálogo") }
         if (usuario?.rol == Rol.CLIENTE) {

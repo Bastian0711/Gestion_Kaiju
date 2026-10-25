@@ -13,6 +13,8 @@ import com.example.appkaiju.stock.model.Usuario
 import com.example.appkaiju.stock.model.Venta
 import kotlinx.coroutines.flow.Flow
 import com.example.appkaiju.stock.model.ProductoConCategoria
+import com.example.appkaiju.stock.model.DetalleConProducto
+import com.example.appkaiju.stock.model.VentaConUsuario
 
 @Dao
 interface UsuarioDao {
@@ -121,11 +123,23 @@ interface VentaDao {
     @Insert
     suspend fun insertarDetalles(detalles: List<DetalleVenta>)
 
-    @Query("SELECT * FROM ventas ORDER BY fechaHora DESC")
-    fun observarVentas(): Flow<List<Venta>>
+    @Query(
+        "SELECT v.*, u.nombre AS usuarioNombre FROM ventas v " +
+                "INNER JOIN usuarios u ON u.id = v.usuarioId ORDER BY v.fechaHora DESC"
+    )
+    fun observarVentas(): Flow<List<VentaConUsuario>>
 
-    @Query("SELECT * FROM detalle_venta WHERE ventaId = :ventaId")
-    suspend fun detalleDeVenta(ventaId: Long): List<DetalleVenta>
+    @Query(
+        "SELECT v.*, u.nombre AS usuarioNombre FROM ventas v " +
+                "INNER JOIN usuarios u ON u.id = v.usuarioId WHERE v.id = :id"
+    )
+    suspend fun ventaConUsuario(id: Long): VentaConUsuario?
+
+    @Query(
+        "SELECT d.*, p.nombre AS productoNombre FROM detalle_venta d " +
+                "INNER JOIN productos p ON p.id = d.productoId WHERE d.ventaId = :ventaId"
+    )
+    suspend fun detalleConProducto(ventaId: Long): List<DetalleConProducto>
 
     @Query("UPDATE ventas SET estado = :estado WHERE id = :id")
     suspend fun cambiarEstado(id: Long, estado: EstadoVenta)
