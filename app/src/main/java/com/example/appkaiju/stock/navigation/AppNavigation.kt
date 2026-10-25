@@ -39,6 +39,7 @@ import com.example.appkaiju.stock.viewmodel.RegisterViewModel
 import com.example.appkaiju.stock.viewmodel.SaleDetailViewModel
 import com.example.appkaiju.stock.viewmodel.SaleHistoryViewModel
 import com.example.appkaiju.stock.viewmodel.SaleViewModel
+import com.example.appkaiju.stock.viewmodel.HomeViewModel
 
 @Composable
 fun AppNavigation(authViewModel: AuthViewModel, container: AppContainer) {
@@ -82,8 +83,17 @@ fun AppNavigation(authViewModel: AuthViewModel, container: AppContainer) {
             )
         }
         composable(Routes.HOME) {
+            val homeViewModel: HomeViewModel = viewModel(
+                factory = viewModelFactory {
+                    initializer {
+                        HomeViewModel(container.productoRepository, container.ventaRepository)
+                    }
+                }
+            )
+            val resumen by homeViewModel.resumen.collectAsState()
             HomeScreen(
                 usuario = sesion.usuario,
+                resumen = resumen,
                 onProductsClick = { navController.navigate(Routes.PRODUCTS) },
                 onVentasClick = { navController.navigate(Routes.SALES) },
                 onCatalogClick = { navController.navigate(Routes.CATALOG) },
