@@ -12,6 +12,7 @@ import com.example.appkaiju.stock.model.Producto
 import com.example.appkaiju.stock.model.Usuario
 import com.example.appkaiju.stock.model.Venta
 import kotlinx.coroutines.flow.Flow
+import com.example.appkaiju.stock.model.ProductoConCategoria
 
 @Dao
 interface UsuarioDao {
@@ -78,7 +79,13 @@ interface ProductoDao {
     )
     fun observarCatalogo(texto: String): Flow<List<Producto>>
 
-
+    @Query(
+        "SELECT p.*, c.nombre AS categoriaNombre FROM productos p " +
+                "INNER JOIN categorias c ON c.id = p.categoriaId " +
+                "WHERE p.activo = 1 AND p.publicado = 1 AND p.nombre LIKE '%' || :texto || '%' " +
+                "ORDER BY p.nombre"
+    )
+    fun observarCatalogoConCategoria(texto: String): Flow<List<ProductoConCategoria>>
     @Query(
         "SELECT * FROM productos WHERE activo = 1 AND stockActual <= stockMinimo " +
                 "ORDER BY stockActual ASC, nombre ASC"

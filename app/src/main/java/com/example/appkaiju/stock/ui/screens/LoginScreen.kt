@@ -38,12 +38,14 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import com.example.appkaiju.stock.viewmodel.AuthViewModel
+import androidx.compose.material3.TextButton
 
 @Composable
 fun LoginScreen(
     viewModel: AuthViewModel,
     onLoginExitoso: () -> Unit,
-    onCatalogClick: () -> Unit
+    onCatalogClick: () -> Unit,
+    onRegistroClick: () -> Unit
 ) {
     val estado by viewModel.estado.collectAsState()
     var mostrarClave by remember { mutableStateOf(false) }
@@ -131,6 +133,10 @@ fun LoginScreen(
 
         OutlinedButton(onClick = onCatalogClick, modifier = Modifier.fillMaxWidth()) {
             Text("Ver catálogo")
+        }
+
+        TextButton(onClick = onRegistroClick) {
+            Text("Crear cuenta de cliente")
         }
     }
 }

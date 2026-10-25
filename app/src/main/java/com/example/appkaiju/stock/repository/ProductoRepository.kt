@@ -6,12 +6,18 @@ import com.example.appkaiju.stock.model.Categoria
 import com.example.appkaiju.stock.model.Producto
 import com.example.appkaiju.stock.model.TipoProducto
 import kotlinx.coroutines.flow.Flow
+import com.example.appkaiju.stock.model.ProductoConCategoria
 
 class ProductoRepository(
     private val productoDao: ProductoDao,
     private val categoriaDao: CategoriaDao
 ) {
     fun buscar(texto: String): Flow<List<Producto>> = productoDao.buscar(texto)
+
+    fun catalogo(texto: String): Flow<List<ProductoConCategoria>> =
+        productoDao.observarCatalogoConCategoria(texto)
+
+    fun categorias(): Flow<List<Categoria>> = categoriaDao.observarTodas()
 
 
     suspend fun crearDatosIniciales() {

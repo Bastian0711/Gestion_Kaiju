@@ -18,6 +18,10 @@ object Routes {
     const val MOVEMENT = "movement/{$ARG_PRODUCTO_ID}/{$ARG_TIPO}"
     const val KARDEX = "kardex/{$ARG_PRODUCTO_ID}"
 
+    const val REGISTER = "register"
+
+    const val CART = "cart"
+
     fun productDetail(productoId: Long) = "product_detail/$productoId"
     fun movement(productoId: Long, tipo: TipoMovimiento) = "movement/$productoId/${tipo.name}"
     fun kardex(productoId: Long) = "kardex/$productoId"

@@ -1,5 +1,6 @@
 package com.example.appkaiju.stock.repository
 
+import android.database.sqlite.SQLiteConstraintException
 import com.example.appkaiju.stock.data.PasswordHasher
 import com.example.appkaiju.stock.data.UsuarioDao
 import com.example.appkaiju.stock.model.Rol
@@ -7,8 +8,12 @@ import com.example.appkaiju.stock.model.Usuario
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
-class UsuarioRepository(private val dao: UsuarioDao) {
+sealed class ResultadoRegistro {
+    data class Ok(val usuario: Usuario) : ResultadoRegistro()
+    data class Error(val mensaje: String) : ResultadoRegistro()
+}
 
+class UsuarioRepository(private val dao: UsuarioDao) {
 
     suspend fun autenticar(correo: String, clave: String): Usuario? {
         val usuario = dao.buscarPorCorreo(correo.lowercase()) ?: return null
@@ -19,7 +24,27 @@ class UsuarioRepository(private val dao: UsuarioDao) {
         return if (valida) usuario else null
     }
 
+    suspend fun registrarCliente(nombre: String, correo: String, clave: String): ResultadoRegistro {
+        val correoNormalizado = correo.trim().lowercase()
+        if (dao.buscarPorCorreo(correoNormalizado) != null) {
+            return ResultadoRegistro.Error("Ya existe una cuenta con ese correo")
+        }
+        val hash = withContext(Dispatchers.Default) { PasswordHasher.hashear(clave) }
+        val nuevo = Usuario(
+            nombre = nombre.trim(),
+            correo = correoNormalizado,
+            passwordHash = hash,
+            rol = Rol.CLIENTE
+        )
+        return try {
+            val id = dao.insertar(nuevo)
+            ResultadoRegistro.Ok(nuevo.copy(id = id))
+        } catch (e: SQLiteConstraintException) {
+            ResultadoRegistro.Error("Ya existe una cuenta con ese correo")
+        }
+    }
 
+    // Datos ficticios de prueba
     suspend fun crearUsuariosIniciales() {
         if (dao.contar() > 0) return
         val hashAdmin = withContext(Dispatchers.Default) { PasswordHasher.hashear("Admin123") }
@@ -42,4 +67,3 @@ class UsuarioRepository(private val dao: UsuarioDao) {
         )
     }
 }
-

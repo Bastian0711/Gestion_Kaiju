@@ -19,7 +19,7 @@ data class LoginUiState(
     val claveError: String? = null,
     val errorGeneral: String? = null,
     val cargando: Boolean = false,
-    val usuario: Usuario? = null // si no es null, hay sesión iniciada
+    val usuario: Usuario? = null
 )
 
 class AuthViewModel(private val repositorio: UsuarioRepository) : ViewModel() {
@@ -60,7 +60,7 @@ class AuthViewModel(private val repositorio: UsuarioRepository) : ViewModel() {
 
     fun iniciarSesion() {
         val ahora = System.currentTimeMillis()
-        // RNF-11: tras 5 intentos fallidos se bloquea 1 minuto
+
         if (ahora < bloqueadoHasta) {
             val segundos = (bloqueadoHasta - ahora) / 1000 + 1
             _estado.update { it.copy(errorGeneral = "Demasiados intentos. Espera $segundos s") }
@@ -95,6 +95,10 @@ class AuthViewModel(private val repositorio: UsuarioRepository) : ViewModel() {
 
     companion object {
         private val REGEX_CORREO = Regex("^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$")
+    }
+
+    fun establecerSesion(usuario: Usuario) {
+        _estado.update { it.copy(usuario = usuario) }
     }
 }
 

@@ -14,6 +14,7 @@ import androidx.navigation.navArgument
 import com.example.appkaiju.stock.data.AppContainer
 import com.example.appkaiju.stock.model.Rol
 import com.example.appkaiju.stock.model.TipoMovimiento
+import com.example.appkaiju.stock.ui.screens.CartScreen
 import com.example.appkaiju.stock.ui.screens.CatalogScreen
 import com.example.appkaiju.stock.ui.screens.HomeScreen
 import com.example.appkaiju.stock.ui.screens.KardexScreen
@@ -22,17 +23,24 @@ import com.example.appkaiju.stock.ui.screens.MovementScreen
 import com.example.appkaiju.stock.ui.screens.ProductDetailScreen
 import com.example.appkaiju.stock.ui.screens.ProductFormScreen
 import com.example.appkaiju.stock.ui.screens.ProductListScreen
+import com.example.appkaiju.stock.ui.screens.RegisterScreen
 import com.example.appkaiju.stock.viewmodel.AuthViewModel
+import com.example.appkaiju.stock.viewmodel.CartViewModel
+import com.example.appkaiju.stock.viewmodel.CatalogViewModel
 import com.example.appkaiju.stock.viewmodel.KardexViewModel
 import com.example.appkaiju.stock.viewmodel.MovementViewModel
 import com.example.appkaiju.stock.viewmodel.ProductDetailViewModel
 import com.example.appkaiju.stock.viewmodel.ProductFormViewModel
 import com.example.appkaiju.stock.viewmodel.ProductListViewModel
+import com.example.appkaiju.stock.viewmodel.RegisterViewModel
 
 @Composable
 fun AppNavigation(authViewModel: AuthViewModel, container: AppContainer) {
     val navController = rememberNavController()
     val sesion by authViewModel.estado.collectAsState()
+
+    val cartViewModel: CartViewModel = viewModel()
+    val carrito by cartViewModel.estado.collectAsState()
 
     val argProducto = listOf(navArgument(Routes.ARG_PRODUCTO_ID) { type = NavType.LongType })
 
@@ -45,13 +53,40 @@ fun AppNavigation(authViewModel: AuthViewModel, container: AppContainer) {
                         popUpTo(Routes.LOGIN) { inclusive = true }
                     }
                 },
-                onCatalogClick = { navController.navigate(Routes.CATALOG) }
+                onCatalogClick = { navController.navigate(Routes.CATALOG) },
+                onRegistroClick = { navController.navigate(Routes.REGISTER) }
+            )
+        }
+        composable(Routes.REGISTER) {
+            val viewModel: RegisterViewModel = viewModel(
+                factory = viewModelFactory {
+                    initializer { RegisterViewModel(container.usuarioRepository) }
+                }
+            )
+            RegisterScreen(
+                viewModel = viewModel,
+                onBack = { navController.popBackStack() },
+                onRegistroExitoso = { usuario ->
+                    authViewModel.establecerSesion(usuario)
+                    navController.navigate(Routes.HOME) {
+                        popUpTo(Routes.LOGIN) { inclusive = true }
+                    }
+                }
             )
         }
         composable(Routes.HOME) {
             HomeScreen(
+                usuario = sesion.usuario,
                 onProductsClick = { navController.navigate(Routes.PRODUCTS) },
-                onCatalogClick = { navController.navigate(Routes.CATALOG) }
+                onCatalogClick = { navController.navigate(Routes.CATALOG) },
+                onCartClick = { navController.navigate(Routes.CART) },
+                onCerrarSesion = {
+                    authViewModel.cerrarSesion()
+                    cartViewModel.limpiar()
+                    navController.navigate(Routes.LOGIN) {
+                        popUpTo(navController.graph.id) { inclusive = true }
+                    }
+                }
             )
         }
         composable(Routes.PRODUCTS) {
@@ -124,7 +159,27 @@ fun AppNavigation(authViewModel: AuthViewModel, container: AppContainer) {
             KardexScreen(viewModel = viewModel, onBack = { navController.popBackStack() })
         }
         composable(Routes.CATALOG) {
-            CatalogScreen(onBack = { navController.popBackStack() })
+            val viewModel: CatalogViewModel = viewModel(
+                factory = viewModelFactory {
+                    initializer { CatalogViewModel(container.productoRepository) }
+                }
+            )
+            CatalogScreen(
+                viewModel = viewModel,
+                puedeComprar = sesion.usuario?.rol == Rol.CLIENTE,
+                unidadesEnCarrito = carrito.cantidadTotal,
+                cantidades = carrito.items.associate { it.producto.id to it.cantidad },
+                onAgregar = cartViewModel::agregar,
+                onCarrito = { navController.navigate(Routes.CART) },
+                onBack = { navController.popBackStack() }
+            )
+        }
+        composable(Routes.CART) {
+            CartScreen(
+                viewModel = cartViewModel,
+                onBack = { navController.popBackStack() },
+                onIrAlCatalogo = { navController.navigate(Routes.CATALOG) }
+            )
         }
     }
 }
