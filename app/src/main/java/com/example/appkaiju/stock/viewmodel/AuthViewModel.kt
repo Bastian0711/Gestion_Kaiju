@@ -10,6 +10,8 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 
 
 data class LoginUiState(
@@ -29,6 +31,8 @@ class AuthViewModel(private val repositorio: UsuarioRepository) : ViewModel() {
 
     private var intentosFallidos = 0
     private var bloqueadoHasta = 0L
+
+    private var cuentaJob: Job? = null
 
     init {
         viewModelScope.launch { repositorio.crearUsuariosIniciales() }
@@ -59,11 +63,9 @@ class AuthViewModel(private val repositorio: UsuarioRepository) : ViewModel() {
     }
 
     fun iniciarSesion() {
-        val ahora = System.currentTimeMillis()
 
-        if (ahora < bloqueadoHasta) {
-            val segundos = (bloqueadoHasta - ahora) / 1000 + 1
-            _estado.update { it.copy(errorGeneral = "Demasiados intentos. Espera $segundos s") }
+        if (System.currentTimeMillis() < bloqueadoHasta) {
+            iniciarCuentaRegresiva()
             return
         }
         if (!validarCampos()) return
@@ -77,14 +79,29 @@ class AuthViewModel(private val repositorio: UsuarioRepository) : ViewModel() {
                 _estado.update { it.copy(cargando = false, usuario = usuario) }
             } else {
                 intentosFallidos++
-                if (intentosFallidos >= 5) {
+                val bloquear = intentosFallidos >= 5
+                if (bloquear) {
                     bloqueadoHasta = System.currentTimeMillis() + 60_000
                     intentosFallidos = 0
                 }
-
                 _estado.update {
                     it.copy(cargando = false, errorGeneral = "Correo o contraseña incorrectos")
                 }
+                if (bloquear) iniciarCuentaRegresiva()
+            }
+        }
+    }
+    private fun iniciarCuentaRegresiva() {
+        cuentaJob?.cancel()
+        cuentaJob = viewModelScope.launch {
+            while (true) {
+                val restante = (bloqueadoHasta - System.currentTimeMillis() + 999) / 1000
+                if (restante <= 0) {
+                    _estado.update { it.copy(errorGeneral = null) }
+                    break
+                }
+                _estado.update { it.copy(errorGeneral = "Demasiados intentos. Espera $restante s") }
+                delay(1000)
             }
         }
     }

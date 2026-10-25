@@ -40,6 +40,7 @@ import com.example.appkaiju.stock.viewmodel.SaleDetailViewModel
 import com.example.appkaiju.stock.viewmodel.SaleHistoryViewModel
 import com.example.appkaiju.stock.viewmodel.SaleViewModel
 import com.example.appkaiju.stock.viewmodel.HomeViewModel
+import com.example.appkaiju.stock.ui.components.MonitorStockBajo
 
 @Composable
 fun AppNavigation(authViewModel: AuthViewModel, container: AppContainer) {
@@ -63,6 +64,11 @@ fun AppNavigation(authViewModel: AuthViewModel, container: AppContainer) {
                 },
                 onCatalogClick = { navController.navigate(Routes.CATALOG) },
                 onRegistroClick = { navController.navigate(Routes.REGISTER) }
+            )
+            MonitorStockBajo(
+                productos = container.productoRepository,
+                alertas = container.alertasStock,
+                activo = sesion.usuario?.rol == Rol.ADMIN
             )
         }
         composable(Routes.REGISTER) {
@@ -193,7 +199,13 @@ fun AppNavigation(authViewModel: AuthViewModel, container: AppContainer) {
             val usuario = sesion.usuario ?: return@composable
             val viewModel: SaleViewModel = viewModel(
                 factory = viewModelFactory {
-                    initializer { SaleViewModel(container.productoRepository, container.ventaRepository) }
+                    initializer {
+                        SaleViewModel(
+                            container.productoRepository,
+                            container.ventaRepository,
+                            container.alertasStock
+                        )
+                    }
                 }
             )
             SaleScreen(

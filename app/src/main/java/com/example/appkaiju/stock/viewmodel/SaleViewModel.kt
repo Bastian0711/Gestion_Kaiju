@@ -3,12 +3,14 @@ package com.example.appkaiju.stock.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.appkaiju.stock.model.Producto
+import com.example.appkaiju.stock.model.ReglasAlertaStock
 import com.example.appkaiju.stock.model.Usuario
 import com.example.appkaiju.stock.repository.LineaVenta
 import com.example.appkaiju.stock.repository.ProductoRepository
 import com.example.appkaiju.stock.repository.ResultadoVenta
 import com.example.appkaiju.stock.repository.VentaRepository
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -30,7 +32,8 @@ data class SaleState(
 @OptIn(ExperimentalCoroutinesApi::class)
 class SaleViewModel(
     productos: ProductoRepository,
-    private val ventas: VentaRepository
+    private val ventas: VentaRepository,
+    private val alertas: MutableSharedFlow<Producto>
 ) : ViewModel() {
 
     private val _estado = MutableStateFlow(SaleState())
@@ -101,8 +104,18 @@ class SaleViewModel(
             _estado.update { it.copy(guardando = true, errorGeneral = null) }
             val lineas = s.lineas.map { LineaVenta(it.producto.id, it.cantidad) }
             when (val r = ventas.registrarVenta(lineas, usuario)) {
-                is ResultadoVenta.Ok -> _estado.update {
-                    it.copy(guardando = false, lineas = emptyList(), ventaRegistradaId = r.ventaId)
+                is ResultadoVenta.Ok -> {
+                    s.lineas.forEach { linea ->
+                        val despues = linea.producto.copy(
+                            stockActual = linea.producto.stockActual - linea.cantidad
+                        )
+                        if (ReglasAlertaStock.empeora(linea.producto, despues)) {
+                            alertas.tryEmit(despues)
+                        }
+                    }
+                    _estado.update {
+                        it.copy(guardando = false, lineas = emptyList(), ventaRegistradaId = r.ventaId)
+                    }
                 }
                 is ResultadoVenta.Error -> _estado.update {
                     it.copy(guardando = false, errorGeneral = r.mensaje)
