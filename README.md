@@ -86,3 +86,6 @@ También se puede crear un cliente nuevo desde **Registrarse** en la pantalla de
 ## Alcance
 
 Este es un MVP. Quedan fuera de esta entrega: sincronización con servicio remoto, gestión de usuarios, escáner QR y reportes avanzados (ver ERS).
+
+## Material complementario
+https://drive.google.com/drive/folders/1A5b_aJWwqVYcsd6SF70FAP3Yk5CCPovK?usp=sharing
