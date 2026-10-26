@@ -88,4 +88,5 @@ También se puede crear un cliente nuevo desde **Registrarse** en la pantalla de
 Este es un MVP. Quedan fuera de esta entrega: sincronización con servicio remoto, gestión de usuarios, escáner QR y reportes avanzados (ver ERS).
 
 ## Material complementario
-https://drive.google.com/drive/folders/1A5b_aJWwqVYcsd6SF70FAP3Yk5CCPovK?usp=sharing
+ERS: https://drive.google.com/drive/folders/1A5b_aJWwqVYcsd6SF70FAP3Yk5CCPovK?usp=sharing
+Trello: https://trello.com/invite/b/6ad9feb1bf93cd721cb385e1/ATTI3ee3d5b9fe511918e99f3decf5a5eae08C7AB0C5/desarrollo-movil
