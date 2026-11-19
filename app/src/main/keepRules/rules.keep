@@ -10,3 +10,7 @@
 #-keepclassmembers class fqcn.of.javascript.interface.for.webview {
 #   public *;
 #}
+# Modelos que Gson llena desde la API externa (mindicador.cl).
+# Se mantienen sus campos para que el APK firmado (release) lea bien el JSON.
+-keep class com.example.appkaiju.stock.data.model.** { *; }
+-keep interface com.example.appkaiju.stock.data.remote.** { *; }
