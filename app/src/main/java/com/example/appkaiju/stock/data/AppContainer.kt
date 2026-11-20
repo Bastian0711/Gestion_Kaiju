@@ -1,7 +1,9 @@
 package com.example.appkaiju.stock.data
 
 import android.content.Context
+import com.example.appkaiju.stock.data.remote.RetrofitInstance
 import com.example.appkaiju.stock.model.Producto
+import com.example.appkaiju.stock.repository.IndicadoresRepository
 import com.example.appkaiju.stock.repository.InventarioRepository
 import com.example.appkaiju.stock.repository.ProductoRepository
 import com.example.appkaiju.stock.repository.UsuarioRepository
@@ -15,6 +17,7 @@ class AppContainer(context: Context) {
     val productoRepository = ProductoRepository(db.productoDao(), db.categoriaDao())
     val inventarioRepository = InventarioRepository(db)
     val ventaRepository = VentaRepository(db)
-
+    // API externa (Retrofit)
+    val indicadoresRepository = IndicadoresRepository(RetrofitInstance.indicadoresApi)
     val alertasStock = MutableSharedFlow<Producto>(extraBufferCapacity = 16)
 }

@@ -41,6 +41,7 @@ import com.example.appkaiju.stock.viewmodel.SaleHistoryViewModel
 import com.example.appkaiju.stock.viewmodel.SaleViewModel
 import com.example.appkaiju.stock.viewmodel.HomeViewModel
 import com.example.appkaiju.stock.ui.components.MonitorStockBajo
+import com.example.appkaiju.stock.viewmodel.IndicadoresViewModel
 
 @Composable
 fun AppNavigation(authViewModel: AuthViewModel, container: AppContainer) {
@@ -49,6 +50,13 @@ fun AppNavigation(authViewModel: AuthViewModel, container: AppContainer) {
 
     val cartViewModel: CartViewModel = viewModel()
     val carrito by cartViewModel.estado.collectAsState()
+
+    val indicadoresViewModel: IndicadoresViewModel = viewModel(
+        factory = viewModelFactory {
+            initializer { IndicadoresViewModel(container.indicadoresRepository) }
+        }
+    )
+    val indicadores by indicadoresViewModel.estado.collectAsState()
 
     val argProducto = listOf(navArgument(Routes.ARG_PRODUCTO_ID) { type = NavType.LongType })
     val argVenta = listOf(navArgument(Routes.ARG_VENTA_ID) { type = NavType.LongType })
@@ -110,7 +118,9 @@ fun AppNavigation(authViewModel: AuthViewModel, container: AppContainer) {
                     navController.navigate(Routes.LOGIN) {
                         popUpTo(navController.graph.id) { inclusive = true }
                     }
-                }
+                },
+                indicadores = indicadores,
+                onReintentarIndicadores = indicadoresViewModel::cargar
             )
         }
         composable(Routes.PRODUCTS) {
@@ -150,7 +160,8 @@ fun AppNavigation(authViewModel: AuthViewModel, container: AppContainer) {
                 esAdmin = sesion.usuario?.rol == Rol.ADMIN,
                 onBack = { navController.popBackStack() },
                 onRegistrar = { tipo -> navController.navigate(Routes.movement(productoId, tipo)) },
-                onKardex = { navController.navigate(Routes.kardex(productoId)) }
+                onKardex = { navController.navigate(Routes.kardex(productoId)) },
+                valorDolar = indicadores.valorDolar
             )
         }
         composable(
