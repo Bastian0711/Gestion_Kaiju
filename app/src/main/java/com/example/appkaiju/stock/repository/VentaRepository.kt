@@ -1,7 +1,9 @@
 package com.example.appkaiju.stock.repository
 
-import androidx.room.withTransaction
-import com.example.appkaiju.stock.data.AppDatabase
+import com.example.appkaiju.stock.data.EjecutorTransaccion
+import com.example.appkaiju.stock.data.MovimientoDao
+import com.example.appkaiju.stock.data.ProductoDao
+import com.example.appkaiju.stock.data.VentaDao
 import com.example.appkaiju.stock.model.DetalleConProducto
 import com.example.appkaiju.stock.model.DetalleVenta
 import com.example.appkaiju.stock.model.MovimientoInventario
@@ -21,10 +23,12 @@ sealed class ResultadoVenta {
     data class Error(val mensaje: String) : ResultadoVenta()
 }
 
-class VentaRepository(private val db: AppDatabase) {
-    private val ventaDao = db.ventaDao()
-    private val productoDao = db.productoDao()
-    private val movimientoDao = db.movimientoDao()
+class VentaRepository(
+    private val ventaDao: VentaDao,
+    private val productoDao: ProductoDao,
+    private val movimientoDao: MovimientoDao,
+    private val transacciones: EjecutorTransaccion
+) {
 
     fun observarVentas(): Flow<List<VentaConUsuario>> = ventaDao.observarVentas()
 
@@ -40,18 +44,18 @@ class VentaRepository(private val db: AppDatabase) {
             return ResultadoVenta.Error("Agrega al menos un producto a la venta")
         }
 
-        return db.withTransaction<ResultadoVenta> {
+        return transacciones.enTransaccion<ResultadoVenta> {
 
             val validadas = mutableListOf<Triple<Producto, Int, ReglasStock.Resultado.Ok>>()
             for (linea in lineas) {
                 val producto = productoDao.buscarPorId(linea.productoId)
-                    ?: return@withTransaction ResultadoVenta.Error("Uno de los productos ya no existe")
+                    ?: return@enTransaccion ResultadoVenta.Error("Uno de los productos ya no existe")
                 if (!producto.activo) {
-                    return@withTransaction ResultadoVenta.Error("${producto.nombre} está desactivado")
+                    return@enTransaccion ResultadoVenta.Error("${producto.nombre} está desactivado")
                 }
                 when (val r = ReglasStock.aplicar(TipoMovimiento.VENTA, producto.stockActual, linea.cantidad)) {
                     is ReglasStock.Resultado.Rechazado ->
-                        return@withTransaction ResultadoVenta.Error("${producto.nombre}: ${r.mensaje}")
+                        return@enTransaccion ResultadoVenta.Error("${producto.nombre}: ${r.mensaje}")
                     is ReglasStock.Resultado.Ok ->
                         validadas.add(Triple(producto, linea.cantidad, r))
                 }
