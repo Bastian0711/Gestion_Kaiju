@@ -12,6 +12,10 @@ ksp = "2.3.11"
 room = "2.8.5"
 retrofit = "2.11.0"
 okhttp = "4.12.0"
+kotest = "5.9.1"
+mockk = "1.14.2"
+coroutinesTest = "1.10.2"
+junitBom = "5.10.2"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -34,6 +38,12 @@ androidx-room-compiler = { group = "androidx.room", name = "room-compiler", vers
 retrofit = { group = "com.squareup.retrofit2", name = "retrofit", version.ref = "retrofit" }
 retrofit-converter-gson = { group = "com.squareup.retrofit2", name = "converter-gson", version.ref = "retrofit" }
 okhttp-logging = { group = "com.squareup.okhttp3", name = "logging-interceptor", version.ref = "okhttp" }
+kotest-runner-junit5 = { group = "io.kotest", name = "kotest-runner-junit5", version.ref = "kotest" }
+kotest-assertions-core = { group = "io.kotest", name = "kotest-assertions-core", version.ref = "kotest" }
+mockk = { group = "io.mockk", name = "mockk", version.ref = "mockk" }
+kotlinx-coroutines-test = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-test", version.ref = "coroutinesTest" }
+junit-bom = { group = "org.junit", name = "junit-bom", version.ref = "junitBom" }
+junit-platform-launcher = { group = "org.junit.platform", name = "junit-platform-launcher" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
