@@ -1,8 +1,17 @@
+import java.util.Properties
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.ksp)
     jacoco
+}
+
+val keystorePropertiesFile = rootProject.file("keystore.properties")
+val keystoreProperties = Properties().apply {
+    if (keystorePropertiesFile.exists()) {
+        keystorePropertiesFile.inputStream().use { load(it) }
+    }
 }
 
 android {
@@ -21,14 +30,30 @@ android {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
+    signingConfigs {
+        create("release") {
+            if (keystorePropertiesFile.exists()) {
+                storeFile = rootProject.file(keystoreProperties.getProperty("storeFile"))
+                storePassword = keystoreProperties.getProperty("storePassword")
+                keyAlias = keystoreProperties.getProperty("keyAlias")
+                keyPassword = keystoreProperties.getProperty("keyPassword")
+            }
+        }
+    }
+
     buildTypes {
         debug {
             enableUnitTestCoverage = true
         }
         release {
             optimization {
-                enable = true
+                // R8 desactivado: con la optimización activa, la app de release se cerraba al abrir
+                // (R8 eliminaba código que Retrofit/Gson/Room buscan por reflexión).
+                enable = false
                 packageScope = setOf("androidx.**", "kotlin.**", "kotlinx.**")
+            }
+            if (keystorePropertiesFile.exists()) {
+                signingConfig = signingConfigs.getByName("release")
             }
         }
     }

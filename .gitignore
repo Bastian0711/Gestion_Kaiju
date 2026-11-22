@@ -13,3 +13,6 @@
 .externalNativeBuild
 .cxx
 local.properties
+# Contraseñas de la llave de firma (no se suben)
+keystore.properties
+app/release/
