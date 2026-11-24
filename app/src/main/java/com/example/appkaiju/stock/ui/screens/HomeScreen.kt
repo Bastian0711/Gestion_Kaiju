@@ -56,7 +56,8 @@ fun HomeScreen(
     onCartClick: () -> Unit,
     onCerrarSesion: () -> Unit,
     indicadores: IndicadoresUiState = IndicadoresUiState(),
-    onReintentarIndicadores: () -> Unit = {}
+    onReintentarIndicadores: () -> Unit = {},
+    onUsuariosClick: () -> Unit = {}
 ) {
     val esAdmin = usuario?.rol == Rol.ADMIN
 
@@ -137,6 +138,11 @@ fun HomeScreen(
             }
             item {
                 Button(onClick = onCatalogClick, modifier = Modifier.fillMaxWidth()) { Text("Catálogo") }
+            }
+            item {
+                Button(onClick = onUsuariosClick, modifier = Modifier.fillMaxWidth()) {
+                    Text("Usuarios (microservicio)")
+                }
             }
 
             item {

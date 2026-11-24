@@ -42,6 +42,8 @@ import com.example.appkaiju.stock.viewmodel.SaleViewModel
 import com.example.appkaiju.stock.viewmodel.HomeViewModel
 import com.example.appkaiju.stock.ui.components.MonitorStockBajo
 import com.example.appkaiju.stock.viewmodel.IndicadoresViewModel
+import com.example.appkaiju.stock.viewmodel.UsuariosRemotosViewModel
+import com.example.appkaiju.stock.ui.screens.UsuariosRemotosScreen
 
 @Composable
 fun AppNavigation(authViewModel: AuthViewModel, container: AppContainer) {
@@ -120,8 +122,17 @@ fun AppNavigation(authViewModel: AuthViewModel, container: AppContainer) {
                     }
                 },
                 indicadores = indicadores,
-                onReintentarIndicadores = indicadoresViewModel::cargar
+                onReintentarIndicadores = indicadoresViewModel::cargar,
+                onUsuariosClick = { navController.navigate(Routes.USUARIOS_REMOTOS) }
             )
+        }
+        composable(Routes.USUARIOS_REMOTOS) {
+            val viewModel: UsuariosRemotosViewModel = viewModel(
+                factory = viewModelFactory {
+                    initializer { UsuariosRemotosViewModel(container.usuariosRemotosRepository) }
+                }
+            )
+            UsuariosRemotosScreen(viewModel = viewModel, onBack = { navController.popBackStack() })
         }
         composable(Routes.PRODUCTS) {
             val viewModel: ProductListViewModel = viewModel(
