@@ -9,6 +9,7 @@ import java.util.concurrent.TimeUnit
 object RetrofitInstance {
 
     private const val URL_INDICADORES = "https://mindicador.cl/"
+    const val URL_USUARIOS = "http://192.168.1.100:8081/"
 
     private val cliente: OkHttpClient by lazy {
         OkHttpClient.Builder()
@@ -28,5 +29,14 @@ object RetrofitInstance {
             .addConverterFactory(GsonConverterFactory.create())
             .build()
             .create(IndicadoresApi::class.java)
+    }
+
+    val usuariosApi: UsuariosApi by lazy {
+        Retrofit.Builder()
+            .baseUrl(URL_USUARIOS)
+            .client(cliente)
+            .addConverterFactory(GsonConverterFactory.create())
+            .build()
+            .create(UsuariosApi::class.java)
     }
 }
