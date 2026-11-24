@@ -7,6 +7,7 @@ import com.example.appkaiju.stock.repository.IndicadoresRepository
 import com.example.appkaiju.stock.repository.InventarioRepository
 import com.example.appkaiju.stock.repository.ProductoRepository
 import com.example.appkaiju.stock.repository.UsuarioRepository
+import com.example.appkaiju.stock.repository.UsuariosRemotosRepository
 import com.example.appkaiju.stock.repository.VentaRepository
 import kotlinx.coroutines.flow.MutableSharedFlow
 
@@ -31,5 +32,8 @@ class AppContainer(context: Context) {
     )
     // API externa (Retrofit)
     val indicadoresRepository = IndicadoresRepository(RetrofitInstance.indicadoresApi)
+
+    // Microservicio de usuarios
+    val usuariosRemotosRepository = UsuariosRemotosRepository(RetrofitInstance.usuariosApi)
     val alertasStock = MutableSharedFlow<Producto>(extraBufferCapacity = 16)
 }
