@@ -78,10 +78,8 @@ El APK firmado está en la carpeta `apk/` y la llave en `keystore/kaiju-release.
 
 Para generarlo: `gradlew assembleRelease`
 
-![Llave jks](docs/capturas/jks.png)
-![APK firmado](docs/capturas/apk_firmado.png)
 
 ## Links
 
 - ERS: https://drive.google.com/drive/folders/1A5b_aJWwqVYcsd6SF70FAP3Yk5CCPovK?usp=sharing
-- Capturas de pantallas: 
+- Capturas de pantallas: https://drive.google.com/drive/folders/1GMdDMR1vfAxa4ll47boaWCyF7OkTlf3i?usp=sharing
