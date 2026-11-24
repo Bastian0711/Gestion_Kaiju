@@ -41,7 +41,9 @@ import androidx.compose.ui.unit.dp
 import com.example.appkaiju.stock.model.EstadoStock
 import com.example.appkaiju.stock.model.Rol
 import com.example.appkaiju.stock.model.Usuario
+import com.example.appkaiju.stock.ui.components.TarjetaIndicadores
 import com.example.appkaiju.stock.ui.components.comoClp
+import com.example.appkaiju.stock.viewmodel.IndicadoresUiState
 import com.example.appkaiju.stock.viewmodel.ResumenState
 
 @Composable
@@ -52,11 +54,14 @@ fun HomeScreen(
     onVentasClick: () -> Unit,
     onCatalogClick: () -> Unit,
     onCartClick: () -> Unit,
-    onCerrarSesion: () -> Unit
+    onCerrarSesion: () -> Unit,
+    indicadores: IndicadoresUiState = IndicadoresUiState(),
+    onReintentarIndicadores: () -> Unit = {},
+    onUsuariosClick: () -> Unit = {}
 ) {
     val esAdmin = usuario?.rol == Rol.ADMIN
 
-    // Las tarjetas aparecen con una animación al entrar a Inicio
+    // Las tarjetas aparecen con una animacion al entrar a Inicio
     var visible by remember { mutableStateOf(false) }
     LaunchedEffect(Unit) { visible = true }
 
@@ -73,6 +78,11 @@ fun HomeScreen(
                     style = MaterialTheme.typography.bodyMedium
                 )
             }
+        }
+
+        // Informacion de la API externa, visible para todos los perfiles
+        item {
+            TarjetaIndicadores(estado = indicadores, onReintentar = onReintentarIndicadores)
         }
 
         if (esAdmin) {
@@ -128,6 +138,11 @@ fun HomeScreen(
             }
             item {
                 Button(onClick = onCatalogClick, modifier = Modifier.fillMaxWidth()) { Text("Catálogo") }
+            }
+            item {
+                Button(onClick = onUsuariosClick, modifier = Modifier.fillMaxWidth()) {
+                    Text("Usuarios (microservicio)")
+                }
             }
 
             item {

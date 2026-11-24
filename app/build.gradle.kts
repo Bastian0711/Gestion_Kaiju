@@ -1,7 +1,17 @@
+import java.util.Properties
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.ksp)
+    jacoco
+}
+
+val keystorePropertiesFile = rootProject.file("keystore.properties")
+val keystoreProperties = Properties().apply {
+    if (keystorePropertiesFile.exists()) {
+        keystorePropertiesFile.inputStream().use { load(it) }
+    }
 }
 
 android {
@@ -20,11 +30,30 @@ android {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
+    signingConfigs {
+        create("release") {
+            if (keystorePropertiesFile.exists()) {
+                storeFile = rootProject.file(keystoreProperties.getProperty("storeFile"))
+                storePassword = keystoreProperties.getProperty("storePassword")
+                keyAlias = keystoreProperties.getProperty("keyAlias")
+                keyPassword = keystoreProperties.getProperty("keyPassword")
+            }
+        }
+    }
+
     buildTypes {
+        debug {
+            enableUnitTestCoverage = true
+        }
         release {
             optimization {
-                enable = true
+                // R8 desactivado: con la optimización activa, la app de release se cerraba al abrir
+                // (R8 eliminaba código que Retrofit/Gson/Room buscan por reflexión).
+                enable = false
                 packageScope = setOf("androidx.**", "kotlin.**", "kotlinx.**")
+            }
+            if (keystorePropertiesFile.exists()) {
+                signingConfig = signingConfigs.getByName("release")
             }
         }
     }
@@ -34,6 +63,14 @@ android {
     }
     buildFeatures {
         compose = true
+    }
+    testCoverage {
+        jacocoVersion = "0.8.13"
+    }
+    testOptions {
+        unitTests {
+            isReturnDefaultValues = true
+        }
     }
 }
 
@@ -46,7 +83,6 @@ dependencies {
     implementation(libs.androidx.compose.ui.tooling.preview)
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
-    testImplementation(libs.junit)
     androidTestImplementation(platform(libs.androidx.compose.bom))
     androidTestImplementation(libs.androidx.compose.ui.test.junit4)
     androidTestImplementation(libs.androidx.espresso.core)
@@ -59,4 +95,65 @@ dependencies {
     implementation(libs.androidx.room.runtime)
     implementation(libs.androidx.room.ktx)
     ksp(libs.androidx.room.compiler)
+    implementation(libs.retrofit)
+    implementation(libs.retrofit.converter.gson)
+    implementation(libs.okhttp.logging)
+    testImplementation(platform(libs.junit.bom))
+    testImplementation(libs.kotest.runner.junit5)
+    testImplementation(libs.kotest.assertions.core)
+    testImplementation(libs.mockk)
+    testImplementation(libs.kotlinx.coroutines.test)
+    testRuntimeOnly(libs.junit.platform.launcher)
+}
+
+tasks.withType<Test>().configureEach {
+    useJUnitPlatform()
+    configure<JacocoTaskExtension> {
+        isIncludeNoLocationClasses = true
+        excludes = listOf("jdk.internal.*")
+    }
+}
+
+jacoco {
+    toolVersion = "0.8.13"
+}
+
+// Reporte de cobertura de la lógica (IE 3.2.1).
+// Ejecutar:  gradlew jacocoTestReport
+// Ver:       app/build/reports/jacoco/jacocoTestReport/html/index.html
+// Se excluye la interfaz (pantallas Compose, navegación, tema) y el código generado o de plataforma,
+// porque la rúbrica mide "el código lógico": modelos, reglas, repositorios y ViewModels.
+val exclusionesCobertura = listOf(
+    "**/R.class", "**/R$*.class", "**/BuildConfig.*", "**/Manifest*.*",
+    "**/*_Impl*", "**/*Dao_Impl*", "**/ComposableSingletons*",
+    "**/ui/**", "**/navigation/**", "**/MainActivity*",
+    "**/data/AppDatabase*", "**/data/AppContainer*", "**/data/AlmacenFotos*",
+    "**/data/NotificadorStock*", "**/data/RoomEjecutorTransaccion*",
+    "**/data/remote/RetrofitInstance*"
+)
+
+tasks.register<JacocoReport>("jacocoTestReport") {
+    group = "verification"
+    description = "Genera el reporte de cobertura de las pruebas unitarias (debug)."
+    dependsOn("testDebugUnitTest")
+
+    reports {
+        html.required.set(true)
+        xml.required.set(true)
+    }
+
+    val build = layout.buildDirectory
+    classDirectories.setFrom(
+        fileTree(build.dir("intermediates/built_in_kotlinc/debug")) { exclude(exclusionesCobertura) },
+        fileTree(build.dir("tmp/kotlin-classes/debug")) { exclude(exclusionesCobertura) }
+    )
+    sourceDirectories.setFrom(files("src/main/java", "src/main/kotlin"))
+    executionData.setFrom(
+        fileTree(build) {
+            include(
+                "outputs/unit_test_code_coverage/debugUnitTest/*.exec",
+                "jacoco/testDebugUnitTest.exec"
+            )
+        }
+    )
 }

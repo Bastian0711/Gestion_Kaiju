@@ -29,6 +29,8 @@ object Routes {
 
     const val SALE_DETAIL = "sale_detail/{$ARG_VENTA_ID}"
 
+    const val USUARIOS_REMOTOS = "usuarios_remotos"
+
     fun saleDetail(ventaId: Long) = "sale_detail/$ventaId"
     fun productDetail(productoId: Long) = "product_detail/$productoId"
     fun movement(productoId: Long, tipo: TipoMovimiento) = "movement/$productoId/${tipo.name}"

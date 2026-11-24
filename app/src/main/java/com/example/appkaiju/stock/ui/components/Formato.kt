@@ -36,3 +36,24 @@ fun MovimientoInventario.cantidadConSigno(): String = when (tipo) {
     TipoMovimiento.SALIDA, TipoMovimiento.VENTA -> "-$cantidad"
     TipoMovimiento.AJUSTE -> if (cantidad > 0) "+$cantidad" else "$cantidad"
 }
+
+// Formatos para la API externa de indicadores (mindicador.cl)
+
+fun Double.comoPesosConDecimales(): String =
+    "\$" + String.format(Locale.forLanguageTag("es-CL"), "%,.2f", this)
+
+fun Double.comoUsd(): String =
+    "US\$ " + String.format(Locale.forLanguageTag("es-CL"), "%,.2f", this)
+
+fun String.comoFechaCorta(): String {
+    val partes = take(10).split("-")
+    return if (partes.size == 3) "${partes[2]}-${partes[1]}-${partes[0]}" else this
+}
+
+fun etiquetaIndicador(codigo: String?, nombre: String?): String = when (codigo) {
+    "dolar" -> "Dólar observado"
+    "euro" -> "Euro"
+    "uf" -> "UF"
+    "utm" -> "UTM"
+    else -> nombre ?: codigo.orEmpty()
+}

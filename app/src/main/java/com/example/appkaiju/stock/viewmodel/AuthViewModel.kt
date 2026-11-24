@@ -24,7 +24,11 @@ data class LoginUiState(
     val usuario: Usuario? = null
 )
 
-class AuthViewModel(private val repositorio: UsuarioRepository) : ViewModel() {
+class AuthViewModel(
+    private val repositorio: UsuarioRepository,
+    // En la app es la hora del sistema y en las pruebas, un tiempo virtual
+    private val reloj: () -> Long = { System.currentTimeMillis() }
+) : ViewModel() {
 
     private val _estado = MutableStateFlow(LoginUiState())
     val estado: StateFlow<LoginUiState> = _estado.asStateFlow()
@@ -64,7 +68,7 @@ class AuthViewModel(private val repositorio: UsuarioRepository) : ViewModel() {
 
     fun iniciarSesion() {
 
-        if (System.currentTimeMillis() < bloqueadoHasta) {
+        if (reloj() < bloqueadoHasta) {
             iniciarCuentaRegresiva()
             return
         }
@@ -81,7 +85,7 @@ class AuthViewModel(private val repositorio: UsuarioRepository) : ViewModel() {
                 intentosFallidos++
                 val bloquear = intentosFallidos >= 5
                 if (bloquear) {
-                    bloqueadoHasta = System.currentTimeMillis() + 60_000
+                    bloqueadoHasta = reloj() + 60_000
                     intentosFallidos = 0
                 }
                 _estado.update {
@@ -95,7 +99,7 @@ class AuthViewModel(private val repositorio: UsuarioRepository) : ViewModel() {
         cuentaJob?.cancel()
         cuentaJob = viewModelScope.launch {
             while (true) {
-                val restante = (bloqueadoHasta - System.currentTimeMillis() + 999) / 1000
+                val restante = (bloqueadoHasta - reloj() + 999) / 1000
                 if (restante <= 0) {
                     _estado.update { it.copy(errorGeneral = null) }
                     break

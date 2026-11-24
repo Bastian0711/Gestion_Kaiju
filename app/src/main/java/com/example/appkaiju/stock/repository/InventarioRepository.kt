@@ -1,7 +1,10 @@
 package com.example.appkaiju.stock.repository
 
-import androidx.room.withTransaction
-import com.example.appkaiju.stock.data.AppDatabase
+import com.example.appkaiju.stock.data.CategoriaDao
+import com.example.appkaiju.stock.data.EjecutorTransaccion
+import com.example.appkaiju.stock.data.MovimientoDao
+import com.example.appkaiju.stock.data.ProductoDao
+import com.example.appkaiju.stock.data.UsuarioDao
 import com.example.appkaiju.stock.model.Categoria
 import com.example.appkaiju.stock.model.EstadoStock
 import com.example.appkaiju.stock.model.MovimientoInventario
@@ -17,11 +20,13 @@ sealed class ResultadoMovimiento {
     data class Error(val mensaje: String) : ResultadoMovimiento()
 }
 
-class InventarioRepository(private val db: AppDatabase) {
-    private val productoDao = db.productoDao()
-    private val movimientoDao = db.movimientoDao()
-    private val categoriaDao = db.categoriaDao()
-    private val usuarioDao = db.usuarioDao()
+class InventarioRepository(
+    private val productoDao: ProductoDao,
+    private val movimientoDao: MovimientoDao,
+    private val categoriaDao: CategoriaDao,
+    private val usuarioDao: UsuarioDao,
+    private val transacciones: EjecutorTransaccion
+) {
 
     fun observarCategorias(): Flow<List<Categoria>> = categoriaDao.observarTodas()
 
@@ -37,7 +42,7 @@ class InventarioRepository(private val db: AppDatabase) {
         productoDao.buscarPorCodigo(codigo) != null
 
     suspend fun crearProducto(producto: Producto, usuarioId: Long): Long =
-        db.withTransaction {
+        transacciones.enTransaccion {
             val id = productoDao.insertar(producto)
             if (producto.stockActual > 0) {
                 movimientoDao.insertar(
@@ -69,7 +74,7 @@ class InventarioRepository(private val db: AppDatabase) {
             return ResultadoMovimiento.Error("Este movimiento se genera desde Ventas")
         }
 
-        return db.withTransaction<ResultadoMovimiento> {
+        return transacciones.enTransaccion<ResultadoMovimiento> {
             val producto = productoDao.buscarPorId(productoId)
             when {
                 producto == null -> ResultadoMovimiento.Error("El producto no existe")

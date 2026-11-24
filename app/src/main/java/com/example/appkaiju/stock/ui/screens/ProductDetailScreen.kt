@@ -30,6 +30,8 @@ import com.example.appkaiju.stock.model.TipoMovimiento
 import com.example.appkaiju.stock.ui.components.EtiquetaEstadoStock
 import com.example.appkaiju.stock.ui.components.MovimientoItem
 import com.example.appkaiju.stock.ui.components.comoClp
+import com.example.appkaiju.stock.ui.components.comoUsd
+import com.example.appkaiju.stock.model.ConversorMoneda
 import com.example.appkaiju.stock.ui.components.etiqueta
 import com.example.appkaiju.stock.viewmodel.ProductDetailViewModel
 import com.example.appkaiju.stock.ui.components.ImagenProducto
@@ -40,7 +42,8 @@ fun ProductDetailScreen(
     esAdmin: Boolean,
     onBack: () -> Unit,
     onRegistrar: (TipoMovimiento) -> Unit,
-    onKardex: () -> Unit
+    onKardex: () -> Unit,
+    valorDolar: Double? = null
 ) {
     val s by viewModel.estado.collectAsState()
     val producto = s.producto
@@ -85,6 +88,12 @@ fun ProductDetailScreen(
                     }
                     Text("Tipo: ${producto.tipo.etiqueta()}", style = MaterialTheme.typography.bodyMedium)
                     Text("Precio: ${producto.precio.comoClp()}", style = MaterialTheme.typography.bodyMedium)
+                    ConversorMoneda.clpADolares(producto.precio, valorDolar)?.let { usd ->
+                        Text(
+                            "Referencia: ${usd.comoUsd()} (dólar observado, mindicador.cl)",
+                            style = MaterialTheme.typography.bodySmall
+                        )
+                    }
                     Text(
                         "Stock actual: ${producto.stockActual} (mínimo ${producto.stockMinimo})",
                         style = MaterialTheme.typography.titleMedium
