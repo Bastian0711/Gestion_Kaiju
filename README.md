@@ -42,7 +42,7 @@ Proyecto de DSY1105 Desarrollo de Aplicaciones Móviles, Duoc UC. Evaluación Pa
 
 Repositorio: https://github.com/MisaelCtrlv/backendfs_dos
 
-URL base: `http://IP_ELASTICA_EC2:8081/` (se cambia en `RetrofitInstance.kt`)
+URL base: `http://IP_ELASTICA_EC2:8081/`
 
 - POST `/api/v1/auth/login` : iniciar sesión y obtener el token
 - GET `/api/v1/usuarios` : listar usuarios
@@ -72,10 +72,6 @@ Hicimos 138 pruebas unitarias con Kotest y MockK (modelos, repositorios y ViewMo
 - Cobertura: `gradlew jacocoTestReport`
 - Pruebas de interfaz: `gradlew connectedDebugAndroidTest`
 
-![Pruebas unitarias](docs/capturas/pruebas_unitarias.png)
-![Cobertura](docs/capturas/cobertura_jacoco.png)
-![Pruebas de interfaz](docs/capturas/pruebas_ui.png)
-
 ## APK firmado
 
 El APK firmado está en la carpeta `apk/` y la llave en `keystore/kaiju-release.jks`. La firma está configurada en `app/build.gradle.kts`. Las contraseñas van en `keystore.properties`, que no subimos al repositorio (hay un archivo `.example` de guía).
@@ -88,3 +84,4 @@ Para generarlo: `gradlew assembleRelease`
 ## Links
 
 - ERS: https://drive.google.com/drive/folders/1A5b_aJWwqVYcsd6SF70FAP3Yk5CCPovK?usp=sharing
+- Capturas de pantallas: 
