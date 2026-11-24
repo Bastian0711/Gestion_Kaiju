@@ -42,7 +42,7 @@ Proyecto de DSY1105 Desarrollo de Aplicaciones Móviles, Duoc UC. Evaluación Pa
 
 Repositorio: https://github.com/MisaelCtrlv/backendfs_dos
 
-URL base: `http://IP_ELASTICA_EC2:8081/`
+URL base: `http://3.233.70.67:8081/`
 
 - POST `/api/v1/auth/login` : iniciar sesión y obtener el token
 - GET `/api/v1/usuarios` : listar usuarios
